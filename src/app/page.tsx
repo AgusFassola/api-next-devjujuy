@@ -8,17 +8,42 @@ export default function Home() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
+  const [error, setError] = useState("");
   
-
 
   useEffect(() => {
     const fetchCharacters = async () => {
+    setLoading(true);
+    setError("");
     try {
       const response = await fetch(`https://rickandmortyapi.com/api/character?page=${page}&name=${search}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError("No characters found");
+          setCharacters([]);
+          setHasNextPage(false);
+          setHasPrevPage(false);
+          return;
+        }
+        throw new Error("Failed to fetch characters");
+      }
+      
       const data = await response.json();
       setCharacters(data.results);
+      setHasNextPage(!!data.info?.next);
+      setHasPrevPage(!!data.info?.prev);
     } catch (error) {
       console.error("Failed to fetch characters:", error);
+      setError("Error fetching characters");
+      setCharacters([]);
+      setHasNextPage(false);
+      setHasPrevPage(false);
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -47,20 +72,27 @@ export default function Home() {
         }
         className="mb-4 p-2 border rounded w-full"
       />
+
+      {loading && <p className="text-gray-500">Loading...</p>}
+      {error && !loading && <p className="text-red-500">{error}</p>}
+      
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {characters.map(character => (
+        { !loading && characters.map(character => (
           <CharacterCard key={character.id} character={character} />
         ))}
       </div>
-      <div className="flex justify-center mt-6 gap-4">
-        <button onClick={handlePreviousPage} disabled={page === 1}
-          className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-        >Back</button>
-        <span> Page {page} </span>
-        <button onClick={handleNextPage}
-          className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-        >Next</button>
-      </div>
+      {!loading && characters.length >0 && (
+        <div className="flex justify-center mt-6 gap-4">
+          <button onClick={handlePreviousPage} disabled={!hasPrevPage}
+            className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >Back</button>
+          <span> Page {page} </span>
+          <button onClick={handleNextPage} disabled={!hasNextPage}
+            className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >Next</button>
+        </div>
+      ) }
+      
     </div>
   );
     
