@@ -12,7 +12,8 @@ export default function Home() {
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
   const [error, setError] = useState("");
-  
+  const [totalPages, setTotalPages] = useState(1);
+
 
   useEffect(() => {
     const fetchCharacters = async () => {
@@ -33,6 +34,7 @@ export default function Home() {
       }
       
       const data = await response.json();
+      setTotalPages(data.info?.pages || 1);
       setCharacters(data.results);
       setHasNextPage(!!data.info?.next);
       setHasPrevPage(!!data.info?.prev);
@@ -86,7 +88,7 @@ export default function Home() {
           <button onClick={handlePreviousPage} disabled={!hasPrevPage}
             className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >Back</button>
-          <span> Page {page} </span>
+          <span> Page {page} / {totalPages} </span>
           <button onClick={handleNextPage} disabled={!hasNextPage}
             className=" disabled:opacity-50 disabled:cursor-not-allowed bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >Next</button>
