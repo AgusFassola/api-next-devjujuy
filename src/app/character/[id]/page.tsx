@@ -13,9 +13,9 @@ export default async function CharacterPage({ params }: Params) {
   }
     const character: Character = await res.json();
     return (
-        <div className="p-6 ">
-            <div className="flex flex-col items-start gap-6 md:flex-row">
-                <img src={character.image} alt={character.name} className="w-full rounded mb-4" />
+        <main className="p-6 max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center gap-6 bg-zinc-800 rounded-xl shadow">
+                <img src={character.image} alt={character.name} className="w-64 h-64 rounded-xl object-cover mb-4" />
                 <div>
                     <h1 className="text-2xl font-bold mb-4">{character.name}</h1>
                     <p className="text-sm text-gray-400"><strong>Status:</strong> {character.status}</p>
@@ -31,6 +31,6 @@ export default async function CharacterPage({ params }: Params) {
                 </div>
             </div>
 
-        </div>
+        </main>
     );
 }
